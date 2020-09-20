@@ -53,7 +53,7 @@ mkdir /mnt/boot
 mount LABEL=EFI /mnt/boot
 
 #Add packages to the mounted system
-pacstrap /mnt base base-devel vim btrfs-progs iw
+pacstrap /mnt base base-devel vim btrfs-progs linux-zen linux-zen-headers linux-firmware wpa_supplicant dhcpcd
 
 #Make the fstab
 genfstab -L -p /mnt >> /mnt/etc/fstab
@@ -63,15 +63,39 @@ genfstab -L -p /mnt >> /mnt/etc/fstab
 sed -i s+LABEL=swap+/dev/mapper/swap+ /mnt/etc/fstab
 
 #Edit the crypttab to open cryptswap as swap
-#cryptswap        /dev/disk/by-partlabel/cryptswap        /dev/urandom        swap,offset=2048,cipher=aes-xts-plain64,size=256
+swap        /dev/disk/by-partlabel/cryptswap        /dev/urandom        swap,offset=2048,cipher=aes-xts-plain64,size=256
 
+#Didn't work:
 #Add pts/0 to /mnt/etc/securetty
+#systemd-nspawn -bD /mnt
 
-systemd-nspawn -bD /mnt
-
-#If that fails. Go into the new system.
+#Go into the new system.
 arch-chroot /mnt /bin/bash
+
+#Set your location:
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+systemd-firstboot --prompt-locale
+
+#Set your time
+timedatectl set-ntp 1
+timedatectl set-timezone America/New_York
+
+#Add hostname
+hostnamectl set-hostname $MYHOST
+
+#Generate mkinitcpio
+mv /etc/mkinitcpio.conf /etc/mkinitcpio.conf.bak
+#Move my mkinitcpio
+mv ./mkinitcpio.conf /etc/
+mkinitcpio -p linux-zen
+
+#Setup bootloader
+refind-install
+#To generate refind_linux.conf
+#mkrlconf
+#move my config
+mv ./refind_linux.conf /boot/
+
+#Set password
 passwd
-
-
-
