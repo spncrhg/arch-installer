@@ -1,5 +1,13 @@
+#run chunk from line N1 to N2
+#sed -n 'N1,N2p' > cmd.tmp && source ./cmd.tmp
+
 #Specify device
 DRIVE=/dev/nvme0n1
+#Hostname
+MYHOST=myhostname
+#Specify SSID and pass
+SSID=wifi_ssid
+WIFIPASS=plain_pass
 
 #Add three partitions
 #EFI 550MB
@@ -97,5 +105,10 @@ refind-install
 #move my config
 mv ./refind_linux.conf /boot/
 
-#Set password
+#WIFI
+systemctl start dhcpcd
+mv ./wpa_supplicant.conf /etc/wpa_supplicant.conf
+wpa_passphrase $SSID $WIFIPASS >> /etc/wpa_supplicant.conf
+
+#Set root password
 passwd
