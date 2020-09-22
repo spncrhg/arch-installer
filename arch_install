@@ -61,7 +61,7 @@ mkdir /mnt/boot
 mount LABEL=EFI /mnt/boot
 
 #Add packages to the mounted system
-pacstrap /mnt base base-devel vim btrfs-progs linux-zen linux-zen-headers linux-firmware wpa_supplicant dhcpcd
+pacstrap /mnt base base-devel vim btrfs-progs linux-zen linux-zen-headers linux-firmware wpa_supplicant dhcpcd efibootmgr 
 
 #Make the fstab
 genfstab -L -p /mnt >> /mnt/etc/fstab
@@ -99,11 +99,14 @@ mv ./mkinitcpio.conf /etc/
 mkinitcpio -p linux-zen
 
 #Setup bootloader
-refind-install
+source ./efi_line #Use EFISTUB instead of refind
+
+#refind-install
 #To generate refind_linux.conf
 #mkrlconf
 #move my config
-mv ./refind_linux.conf /boot/
+#mv ./refind_linux.conf /boot/
+#
 
 #WIFI
 systemctl start dhcpcd
